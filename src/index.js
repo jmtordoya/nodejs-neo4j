@@ -28,12 +28,14 @@ app.get('/', function(req, res){
             .then(function(result){
                 result.records.forEach(function(record){
                     console.log(record._fields[0].properties);
+                    var nombre = record._fields[0].properties;
+                    res.send("Nombre: " + nombre['name']);
                 });
             })
             .catch(function(err){
                 console.log(err);
+                res.send(err);
             });
-    res.send("Funciona");
 });
 
 //Starting server
