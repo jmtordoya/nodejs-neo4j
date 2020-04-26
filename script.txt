@@ -1,0 +1,5 @@
+create 
+	(a:student{name:jose miguel tordoya}),
+	(b:group{name:N2})
+create (a)-[r:belongsTo]->(b)
+return a, r, b  
