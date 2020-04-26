@@ -1,3 +1,0 @@
-tarea 1: aprender todos lo mismo
-tarea 2: logica de la app
-tarea 3: como hacer app que lea documentos que lo mande a la app de node
