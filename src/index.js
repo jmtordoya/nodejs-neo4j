@@ -82,21 +82,48 @@ app.post('/api/addRelation', function (req, res) {
 
 // METODO PARA LEER TEXTO DE PDF CON PDF-PARSE E INSERTAR
 
-function comprobarKeywords() {
+async function comprobarKeywords(key) { //-------aqui recibo una palabra que pasa en el foreach
     const session3 = driver.session();
-
+    var test = ''; //-------POR DEFECTO VACIO PARA VALIDAR LUEGO SI EXISTE LA PALABRA CONSULTADA
     session3
-        .run("MATCH (a:keyword) where a.word = 'holis' return a.word AS key")
+        .run("MATCH (a:keyword) where a.word = '$llave' return a.word AS key", {
+            llave: key
+        })
         .subscribe({
             onKeys: keys => {
-                // console.log(keys)
+                console.log(keys)
             },
             onNext: record => {
-                if (record.get('key')) {
-                    console.log(record.get('key')) //valor
-                } else {
-                    console.log('asdasdsa') //valor
+                test = record.get('key') //-------GUARDO EL VALOR RETORNADO DE LA CONSULTA EN test QUE EN ESTE CASO ES LA PALABRA CONSULTADA
+            },
+            onCompleted: () => {
+                const session4 = driver.session();
+                const session5 = driver.session();
+
+                if (test != '') { //-------SI test TIENE VALOR ENTONCES SI EXISTE LA PALABRA // AQUI SOLO CREARIAMOS LA RELACION CON EL NUEVO DOCUMENTO CON LA PALABRA EXISTENTE
+                    session4
+                        .run("MATCH (a:keyword {word:'$llave'}) create (:document {autoConst:''})", {
+                            llave: key
+                        })
+                        .subscribe({
+                            onKeys: keys => {
+                                console.log(keys)
+                            },
+                            onNext: record => {
+                                //console.log(record.get(''))
+                            },
+                            onCompleted: () => {
+
+                                session4.close() // returns a Promise
+                            },
+                            onError: error => {
+                                console.log(error)
+                            }
+                        })
+                } else { //-------SI test ESTA VACIO ENTONCES NO EXISTE LA PALABRA EN LA BD // AQUI CREARIAMOS TODO JUNTO: DOC,RELACION,KEY
+
                 }
+                session3.close() // returns a Promise 
             },
             onError: error => {
                 console.log(error)
@@ -132,24 +159,21 @@ app.get('/api/v1/pdf', (req, res) => {
 
             //Creando nodo de documento
 
-            var resultado;
             session
                 .run("create(a:document{autoConst:'0266/2019-RCA', text:$documentParam}) RETURN a.autoConst AS autoConstitucional, a.text AS texto", {
-                    documentParam: document
+                    documentParam: document //-------PARAMETROS PARA LA CONSULTA
                 })
                 .subscribe({
                     onKeys: keys => {
-                        // console.log(keys)
+                        console.log(keys) //-------IMPRIME EL NOMBRE DE LAS 'COLUMNAS' DECLARADAS EN EL RETURN DE LA CONSULTA
                     },
                     onNext: record => {
-                        // console.log(record.get('autoConstitucional'))
+                        console.log(record.get('autoConstitucional')) //-------IMPRIME EL VALOR INSERTADO O CONSULTADO, ESTO NO SE EJECUTA SI LA CONSULTA NO DEVUELVE O INSERTA ALGO
                     },
-                    onCompleted: () => {
-                        //session.close() // returns a Promise
+                    onCompleted: () => { //-------SE EJECUTA AL TERMINAR LA CONSULTA
                         keys.forEach(function (i) {
                             var key = i.key;
                             var count = i.count;
-                            var resultado;
                             const session2 = driver.session();
 
                             session2
@@ -164,17 +188,26 @@ app.get('/api/v1/pdf', (req, res) => {
                                     onNext: record => {
                                         // console.log(record.get('autoConstitucional'), record.get('peso'), record.get('word')) //valor
                                     },
+                                    onCompleted: () => {
+                                        comprobarKeywords('para');
+                                        session2.close() // returns a Promise
+                                    },
                                     onError: error => {
                                         console.log(error)
                                     }
                                 })
-                            comprobarKeywords();
 
                         })
-                        res.send('asdadas')
+                        session.close() // returns a Promise
+                        res.json({
+                            message: 'Documento Registrado'
+                        })
                     },
                     onError: error => {
                         console.log(error)
+                        res.json({
+                            ErrorMessage: error + ''
+                        })
                     }
                 })
 
