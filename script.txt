@@ -1,5 +1,29 @@
+//CREAR ESTUDIANTE, GRUPO Y RELACIONARLOS
 create 
-	(a:student{name:jose miguel tordoya}),
-	(b:group{name:N2})
+	(a:student{name:'jose miguel tordoya'}),
+	(b:group{name:'N2'})
 create (a)-[r:belongsTo]->(b)
 return a, r, b  
+
+//MOSTRAR TODOS LOS NODOS
+match (n) return n
+
+//ELIMINAR TODOS LOS NODOS
+MATCH (n) DETACH DELETE n
+
+//ELIMINAR NODO
+MATCH (n:student { name: 'Ismael Aliaga' })
+DELETE n
+
+//ELIMINAR RELACION
+MATCH (n:student { name: 'Ismael Aliaga' })-[r:belongsTo]->()
+DELETE r
+
+//ELIMINAR NODO CON TODAS SUS RELACIONES
+MATCH (n:student { name: 'Ismael Aliaga' })
+DETACH DELETE n
+
+//ELIMINAR TODOS LOS NODOS HUERFANOS, QUE NO TIENEN RELACION
+MATCH (n)
+WHERE NOT (n)--()
+DELETE n
