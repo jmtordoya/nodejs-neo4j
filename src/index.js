@@ -80,8 +80,7 @@ app.post('/api/addRelation', function (req, res) {
         });
 });
 
-function comprobarKeywords(key, count) { //-------aqui recibo una palabra que pasa en el foreach
-
+function comprobarKeywords(autoConstitucional, key, count) {
     const session3 = driver.session();
     var test = ''; //-------POR DEFECTO VACIO PARA VALIDAR LUEGO SI EXISTE LA PALABRA CONSULTADA
     session3
@@ -104,7 +103,8 @@ function comprobarKeywords(key, count) { //-------aqui recibo una palabra que pa
                     console.log("si existe");
                     const session2 = driver.session();
                     session2
-                        .run("MATCH (a:document {autoConst:'02-0266/2019-RCA'}),(b:keyword{word:$keyParam}) create(a)<-[r:key {peso:$countParam}]-(b) RETURN a.autoConst AS autoConstitucional, r.peso As peso, b.word AS word", {
+                        .run("MATCH (a:document {autoConst:$autoConstParam}),(b:keyword{word:$keyParam}) create(a)<-[r:key {peso:$countParam}]-(b) RETURN a.autoConst AS autoConstitucional, r.peso As peso, b.word AS word", {
+                            autoConstParam: autoConstitucional,
                             keyParam: key,
                             countParam: count
                         })
@@ -121,7 +121,8 @@ function comprobarKeywords(key, count) { //-------aqui recibo una palabra que pa
                     console.log("No existe");
                     const session2 = driver.session();
                     session2
-                        .run("MATCH (a:document {autoConst:'02-0266/2019-RCA'}) create(b:keyword{word:$keyParam})-[r:key {peso:$countParam}]->(a) RETURN a.autoConst AS autoConstitucional, r.peso As peso, b.word AS word", {
+                        .run("MATCH (a:document {autoConst:$autoConstParam}) create(b:keyword{word:$keyParam})-[r:key {peso:$countParam}]->(a) RETURN a.autoConst AS autoConstitucional, r.peso As peso, b.word AS word", {
+                            autoConstParam: autoConstitucional,
                             keyParam: key,
                             countParam: count
                         })
@@ -146,19 +147,37 @@ function comprobarKeywords(key, count) { //-------aqui recibo una palabra que pa
 }
 
 app.get('/api/v1/pdf', (req, res) => {
+    var rutaCivilAuto1 = 'src/public/files/civil/autoInterlocutorio/jurisprudencia.pdf';
+    var rutaCivilAuto2 = 'src/public/files/civil/autoInterlocutorio/jurisprudencia2.pdf';
+    var rutaCivilSen1 = 'src/public/files/civil/sentencia/jurisprudencia.pdf';
+    var rutaCivilSen2 = 'src/public/files/civil/sentencia/jurisprudencia2.pdf';
+    var rutaPenalActa1 = 'src/public/files/penal/actaConciliacion/jurisprudencia.pdf';
+    var rutaPenalActa2 = 'src/public/files/penal/actaConciliacion/jurisprudencia2.pdf';
+    var rutaPenalDes1 = 'src/public/files/penal/desestimiento/jurisprudencia.pdf';
+    var rutaPenalDes2 = 'src/public/files/penal/desestimiento/jurisprudencia2.pdf';
     var document;
+    var autoConstitucional;
     var keys = [];
-    let dataBuffer = fs.readFileSync('src/public/files/puebaJurisprudencia.pdf');
+    let dataBuffer = fs.readFileSync(rutaPenalDes1);
     pdf(dataBuffer).then(function (data) {
         var fullDocument = data.text;
         document = fullDocument;
         var documentLower = fullDocument.toLowerCase();
+        var documentSplit = documentLower.split(' ');
 
         //Desde aqui cuenta palabras repetidas y quita puntos comas y saltos de linea
-
-        var documentSplit = documentLower.split(' ').filter(counter => counter.length > 3);
+        
+        var diccionario = ['para','donde','como','desde','mismo','puede','cual','partir','debe','dentro','parte','fecha','sido','este','pues','haber','sobre','sería','esta','bien','todo','forma','estas','todos','todas','cuales','fechas','partes','estos','bajo','debió','debería','falta','días','tiene','tienes','misma','dicha']
+        var documentSplit2 = documentLower.split(' ').filter(counter => counter.length > 3);
+        for (let j = 0; j < diccionario.length; j++) {
+            for (let l = 0; l < documentSplit2.length; l++) {
+                if(diccionario[j] == documentSplit2[l]){
+                    documentSplit2.splice(l,1)
+                }
+            }
+        }
         var count = {};
-        documentSplit.forEach(function (i) {
+        documentSplit2.forEach(function (i) {
             var clave = i.replace('\n', '').replace('.', '').replace(',', '').replace(':', '');
             count[clave] = (count[i] || 0) + 1;
         });
@@ -170,12 +189,12 @@ app.get('/api/v1/pdf', (req, res) => {
                 });
             }
         }
-
+        autoConstitucional = documentSplit[4];
         //Creando nodo de documento
-
         session
-            .run("create(a:document{autoConst:'02-0266/2019-RCA', text:$documentParam}) RETURN a.autoConst AS autoConstitucional, a.text AS texto", {
-                documentParam: document //-------PARAMETROS PARA LA CONSULTA
+            .run("Match (b:resolucion{name:'desestimiento'}), (c:materia{name:'penal'}) create (c)<-[:pertenece]-(a:document{autoConst:$autoConstParam, text:$documentParam})-[:termino]->(b) RETURN a.autoConst AS autoConstitucional, a.text AS texto", {
+                documentParam: document,
+                autoConstParam: autoConstitucional
             })
             .subscribe({
                 onKeys: keys => {
@@ -188,7 +207,7 @@ app.get('/api/v1/pdf', (req, res) => {
                     keys.forEach(async function (i) {
                         var key = i.key;
                         var count = i.count;
-                        await comprobarKeywords(key, count);
+                        await comprobarKeywords(autoConstitucional, key, count);
                     })
                     session.close() // returns a Promise
                     res.json({
@@ -203,28 +222,6 @@ app.get('/api/v1/pdf', (req, res) => {
                     })
                 }
             })
-
-        // Creando nodos para palabras clave
-        /*
-        keys.forEach(function (i) {
-            var key = i.key;
-            var count = i.count;
-            var resultado;
-            session
-                .run("MATCH (a:document {autoConst:'0266/2019-RCA'}) create(b:keyword{word:$keyParam})-[r:key {peso:$countParam}]->(a) RETURN a.autoConst AS autoConstitucional, r.peso As peso, b.word AS word", { keyParam: key, countParam: count })
-                .subscribe({
-                    onKeys: keys => {
-                        console.log(keys)
-                    },
-                    onNext: record => {
-                        console.log(record.get('autoConstitucional'), record.get('peso'), record.get('word'))
-                    },
-                    onError: error => {
-                        console.log(error)
-                    }
-                })
-        })
-        */
     })
         .catch(function (error) {
             console.log(error)

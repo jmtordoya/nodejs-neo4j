@@ -1,3 +1,18 @@
+create 
+    (a:materia{name:'civil'}),
+    (b:materia{name:'penal'}),
+    (c:materia{name:'familiar'}),
+    (d:materia{name:'penal'}),
+    (f:materia{name:'comercial'}),
+    (g:materia{name:'laboral'}),
+    (h:resolucion{name:'sentencia'}),
+    (i:resolucion{name:'autos supremos'}),
+    (j:resolucion{name:'autos interlocutorios'}),
+    (k:resolucion{name:'desestimiento'}),
+    (l:resolucion{name:'acta de conciliacion'}),
+    (m:resolucion{name:'resolucion de rechazo'})
+ return a,b,c,d,f,g,h,i,j,k,l,m
+
 //CREAR ESTUDIANTE, GRUPO Y RELACIONARLOS
 create 
 	(a:student{name:'jose miguel tordoya'}),
