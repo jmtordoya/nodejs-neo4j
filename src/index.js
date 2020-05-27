@@ -6,7 +6,7 @@ const fs = require('fs');
 const pdf = require('pdf-parse');
 
 //Conexion to database
-const driver = neo4j.driver('bolt://localhost', neo4j.auth.basic('megashi', 'pedro123'));
+const driver = neo4j.driver('bolt://localhost', neo4j.auth.basic('dan', 'dan123'));
 const session = driver.session();
 
 //Initializations
@@ -82,53 +82,66 @@ app.post('/api/addRelation', function (req, res) {
 
 // METODO PARA LEER TEXTO DE PDF CON PDF-PARSE E INSERTAR
 
-async function comprobarKeywords(key) { //-------aqui recibo una palabra que pasa en el foreach
+function comprobarKeywords(key) { //-------aqui recibo una palabra que pasa en el foreach
+
     const session3 = driver.session();
     var test = ''; //-------POR DEFECTO VACIO PARA VALIDAR LUEGO SI EXISTE LA PALABRA CONSULTADA
     session3
-        .run("MATCH (a:keyword) where a.word = '$llave' return a.word AS key", {
+        .run("MATCH (a:keyword) where a.word = $llave return a.word AS key", {
             llave: key
         })
         .subscribe({
             onKeys: keys => {
-                console.log(keys)
+                // console.log(keys)
             },
-            onNext: record => {
+            onNext: record =>{
+                
                 test = record.get('key') //-------GUARDO EL VALOR RETORNADO DE LA CONSULTA EN test QUE EN ESTE CASO ES LA PALABRA CONSULTADA
+                
+                // console.log(p)
             },
-            onCompleted: () => {
-                const session4 = driver.session();
-                const session5 = driver.session();
-
-                if (test != '') { //-------SI test TIENE VALOR ENTONCES SI EXISTE LA PALABRA // AQUI SOLO CREARIAMOS LA RELACION CON EL NUEVO DOCUMENTO CON LA PALABRA EXISTENTE
-                    session4
-                        .run("MATCH (a:keyword {word:'$llave'}) create (:document {autoConst:''})", {
-                            llave: key
-                        })
-                        .subscribe({
-                            onKeys: keys => {
-                                console.log(keys)
-                            },
-                            onNext: record => {
-                                //console.log(record.get(''))
-                            },
-                            onCompleted: () => {
-
-                                session4.close() // returns a Promise
-                            },
-                            onError: error => {
-                                console.log(error)
-                            }
-                        })
-                } else { //-------SI test ESTA VACIO ENTONCES NO EXISTE LA PALABRA EN LA BD // AQUI CREARIAMOS TODO JUNTO: DOC,RELACION,KEY
-
+            onCompleted:() =>{
+                
+                if(test != ''){
+                    console.log(test)
+                }else{
+                    console.log('nada')
                 }
+                
                 session3.close() // returns a Promise 
+                // const session4 = driver.session();
+                // const session5 = driver.session();
+
+                // if (test != '') { //-------SI test TIENE VALOR ENTONCES SI EXISTE LA PALABRA // AQUI SOLO CREARIAMOS LA RELACION CON EL NUEVO DOCUMENTO CON LA PALABRA EXISTENTE
+                //     session4
+                //         .run("MATCH (a:keyword {word:'$llave'}) create (:document {autoConst:''})", {
+                //             llave: key
+                //         })
+                //         .subscribe({
+                //             onKeys: keys => {
+                //                 console.log(keys)
+                //             },
+                //             onNext: record => {
+                //                 //console.log(record.get(''))
+                //             },
+                //             onCompleted: () => {
+
+                //                 session4.close() // returns a Promise
+                //             },
+                //             onError: error => {
+                //                 console.log(error)
+                //             }
+                //         })
+                // } else { //-------SI test ESTA VACIO ENTONCES NO EXISTE LA PALABRA EN LA BD // AQUI CREARIAMOS TODO JUNTO: DOC,RELACION,KEY
+
+                // }
             },
             onError: error => {
                 console.log(error)
+
             }
         })
+        
 }
 
 app.get('/api/v1/pdf', (req, res) => {
@@ -170,32 +183,35 @@ app.get('/api/v1/pdf', (req, res) => {
                     onNext: record => {
                         console.log(record.get('autoConstitucional')) //-------IMPRIME EL VALOR INSERTADO O CONSULTADO, ESTO NO SE EJECUTA SI LA CONSULTA NO DEVUELVE O INSERTA ALGO
                     },
-                    onCompleted: () => { //-------SE EJECUTA AL TERMINAR LA CONSULTA
-                        keys.forEach(function (i) {
+                    onCompleted: () =>{ //-------SE EJECUTA AL TERMINAR LA CONSULTA
+                        keys.forEach(async function (i) {
                             var key = i.key;
                             var count = i.count;
-                            const session2 = driver.session();
 
-                            session2
-                                .run("MATCH (a:document {autoConst:'0266/2019-RCA'}) create(b:keyword{word:$keyParam})-[r:key {peso:$countParam}]->(a) RETURN a.autoConst AS autoConstitucional, r.peso As peso, b.word AS word", {
-                                    keyParam: key,
-                                    countParam: count
-                                })
-                                .subscribe({
-                                    onKeys: keys => {
-                                        // console.log(keys)
-                                    },
-                                    onNext: record => {
-                                        // console.log(record.get('autoConstitucional'), record.get('peso'), record.get('word')) //valor
-                                    },
-                                    onCompleted: () => {
-                                        comprobarKeywords('para');
-                                        session2.close() // returns a Promise
-                                    },
-                                    onError: error => {
-                                        console.log(error)
-                                    }
-                                })
+                            await comprobarKeywords('asdasd')
+                            
+                            // const session2 = driver.session();
+
+                            // session2
+                            //     .run("MATCH (a:document {autoConst:'0266/2019-RCA'}) create(b:keyword{word:$keyParam})-[r:key {peso:$countParam}]->(a) RETURN a.autoConst AS autoConstitucional, r.peso As peso, b.word AS word", {
+                            //         keyParam: key,
+                            //         countParam: count
+                            //     })
+                            //     .subscribe({
+                            //         onKeys: keys => {
+                            //             // console.log(keys)
+                            //         },
+                            //         onNext: record => {
+                            //             // console.log(record.get('autoConstitucional'), record.get('peso'), record.get('word')) //valor
+                            //         },
+                            //         onCompleted: () => {
+                            //             comprobarKeywords('para');
+                            //             session2.close() // returns a Promise
+                            //         },
+                            //         onError: error => {
+                            //             console.log(error)
+                            //         }
+                            //     })
 
                         })
                         session.close() // returns a Promise
