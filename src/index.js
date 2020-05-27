@@ -10,7 +10,7 @@ const driver = neo4j.driver('bolt://localhost', neo4j.auth.basic('dan', 'dan123'
 const session = driver.session();
 
 //Initializations
-const app = express();
+const app = express()
 
 //Settings
 app.set('port', process.env.PORT || 4000);
@@ -80,7 +80,9 @@ app.post('/api/addRelation', function (req, res) {
         });
 });
 
-// METODO PARA LEER TEXTO DE PDF CON PDF-PARSE E INSERTAR
+var parametro = [];
+
+
 
 function comprobarKeywords(key) { //-------aqui recibo una palabra que pasa en el foreach
 
@@ -144,6 +146,17 @@ function comprobarKeywords(key) { //-------aqui recibo una palabra que pasa en e
         
 }
 
+function leerKey(test) {
+    parametro = test;
+    console.log("1:", parametro);
+
+    // if(test == null){
+    //     console.log("la cagaron");
+    // }else{
+    //     console.log(test);
+    // }
+}
+
 app.get('/api/v1/pdf', (req, res) => {
     var document;
     var keys = [];
@@ -188,7 +201,7 @@ app.get('/api/v1/pdf', (req, res) => {
                             var key = i.key;
                             var count = i.count;
 
-                            await comprobarKeywords('asdasd')
+                            await comprobarKeywords('para')
                             
                             // const session2 = driver.session();
 
@@ -213,11 +226,31 @@ app.get('/api/v1/pdf', (req, res) => {
                             //         }
                             //     })
 
+                            // session2
+                            //     .run("MATCH (a:document {autoConst:'0266/2019-RCA'}) create(b:keyword{word:$keyParam})-[r:key {peso:$countParam}]->(a) RETURN a.autoConst AS autoConstitucional, r.peso As peso, b.word AS word", {
+                            //         keyParam: key,
+                            //         countParam: count
+                            //     })
+                            //     .subscribe({
+                            //         onKeys: keys => {
+                            //             // console.log(keys)
+                            //         },
+                            //         onNext: record => {
+                            //             // console.log(record.get('autoConstitucional'), record.get('peso'), record.get('word')) //valor
+                            //         },
+                            //         onCompleted: () => {
+                            //             session2.close() // returns a Promise
+                            //         },
+                            //         onError: error => {
+                            //             console.log(error)
+                            //         }
+                            //     })
                         })
                         session.close() // returns a Promise
                         res.json({
                             message: 'Documento Registrado'
                         })
+
                     },
                     onError: error => {
                         console.log(error)
