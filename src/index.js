@@ -158,7 +158,7 @@ app.get('/api/v1/pdf', (req, res) => {
     var document;
     var autoConstitucional;
     var keys = [];
-    let dataBuffer = fs.readFileSync(rutaPenalDes1);
+    let dataBuffer = fs.readFileSync(rutaPenalDes2);
     pdf(dataBuffer).then(function (data) {
         var fullDocument = data.text;
         document = fullDocument;
