@@ -35,8 +35,8 @@
             var config = {
                 container_id: "viz",
                 server_url: "bolt://localhost:7687",
-                server_user: "jmtordoya",
-                server_password: "jmtordoya",
+                server_user: "dan",
+                server_password: "123",
                 labels: {
                     "document": {
                         "caption": "autoConst",
@@ -62,7 +62,7 @@
                     }
                 },
                 // initial_cypher: "match (n) return n"
-                initial_cypher: "MATCH (n)-[r:key]->(m) RETURN n,r,m limit 12"
+                initial_cypher: "MATCH (n)-[r:key]->(m) RETURN n,r,m limit 10"
             };
 
             viz = new NeoVis.default(config);
@@ -104,5 +104,5 @@
         viz.stabilize();
     })
 </script>
-
+<script src="./prueba.js"></script>
 </html>

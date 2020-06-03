@@ -22,6 +22,12 @@ app.use(morgan('dev'));
 app.use(express.urlencoded({
     extended: false
 }));
+app.use(function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+});
 app.use(express.json());
 
 //Public
@@ -97,6 +103,26 @@ function comprobarKeywords(autoConstitucional, key, count) {
         })
 
 }
+app.get('/api/v1/delvolver',(req,res)=>{
+    const session2 = driver.session();
+    var test=[];
+    session2
+        .run("MATCH (a:document) RETURN a as documento")
+        .subscribe({
+            onNext: record => {
+                // test = record.get('documento')
+                test.push(record.get('documento'))
+            },
+            onCompleted: () => {
+                res.json(test)
+                console.log(test)
+                session2.close()
+            },
+            onError: error => {
+                console.log(error)
+            }
+        })
+})
 
 app.get('/api/v1/pdf', (req, res) => {
     var rutaCivilAuto1 = 'src/public/files/civil/autoInterlocutorio/jurisprudencia.pdf';
@@ -114,6 +140,7 @@ app.get('/api/v1/pdf', (req, res) => {
     pdf(dataBuffer).then(function (data) {
         var fullDocument = data.text;
         document = fullDocument;
+        console.log(document)
         var documentLower = fullDocument.toLowerCase();
         var documentSplit = documentLower.split(' ');
         
