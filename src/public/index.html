@@ -62,7 +62,7 @@
                     }
                 },
                 // initial_cypher: "match (n) return n"
-                initial_cypher: "MATCH (n)-[r:key]->(m) RETURN n,r,m"
+                initial_cypher: "MATCH (n)-[r:key]->(m) RETURN n,r,m limit 12"
             };
 
             viz = new NeoVis.default(config);
@@ -88,9 +88,10 @@
     $("#reload").click(function () {
 
         var cypher = $("#cypher").val();
+        var noquery = `match (a:document)<-[r:key]-(b:keyword) where b.word='${cypher}' return a,r,b`;
 
         if (cypher.length > 3) {
-            viz.renderWithCypher(cypher);
+            viz.renderWithCypher(noquery);
         } else {
             console.log("reload");
             viz.reload();

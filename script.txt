@@ -1,3 +1,4 @@
+//CONSULTAS QUE HEMOS UTILIZADO
 create 
     (a:materia{name:'civil'}),
     (b:materia{name:'penal'}),
@@ -12,6 +13,10 @@ create
     (l:resolucion{name:'acta de conciliacion'}),
     (m:resolucion{name:'resolucion de rechazo'})
  return a,b,c,d,f,g,h,i,j,k,l,m
+
+//BUSCAR DOC QUE TIENEN ESA PALABRA CLAVE
+match (a:document)<-[r:key]-(b:keyword) 
+where b.word='nulidad' return a,r,b
 
 //CREAR ESTUDIANTE, GRUPO Y RELACIONARLOS
 create 
@@ -42,3 +47,6 @@ DETACH DELETE n
 MATCH (n)
 WHERE NOT (n)--()
 DELETE n
+
+
+
