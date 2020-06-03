@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const os = require('os');
 const path = require('path');
 const neo4j = require('neo4j-driver');
 const fs = require('fs');
@@ -29,56 +30,7 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 //Routes
 
 //METODO DE PRUEBA PARA CONEXION CON NEO4J
-app.get('/api', function (req, res) {
-    var nombre;
-    session
-        .run('MATCH(a:student) RETURN a LIMIT 25')
-        .then(function (result) {
-            result.records.forEach(function (record) {
-                console.log(record._fields[0].properties);
-                nombre = record._fields[0].properties;
-            });
-            res.send("Nombre: " + nombre['name']);
-        })
-        .catch(function (err) {
-            console.log(err);
-            res.send(err);
-        });
-});
 
-//METODO PARA INSERTAR EN NEO4J
-app.post('/api/add', function (req, res) {
-    var estudiante = req.body.estudiante;
-    session
-        .run("create(c:student{name:$nombreParam})", {
-            nombreParam: estudiante
-        })
-        .then(function (result) {
-            res.redirect('/api');
-        })
-        .catch(function (err) {
-            console.log(err);
-            res.send(err);
-        });
-});
-
-//METODO PARA RELACIONAR EN NEO4J
-app.post('/api/addRelation', function (req, res) {
-    var estudiante = req.body.estudiante;
-    var grupo = req.body.grupo;
-    session
-        .run("MATCH(n:student{name:$nombreParam}),(b:group{name:$grupoParam}) MERGE (n)-[r:belongsTo]->(b) return n, r, b", {
-            nombreParam: estudiante,
-            grupoParam: grupo
-        })
-        .then(function (result) {
-            res.redirect('/api');
-        })
-        .catch(function (err) {
-            console.log(err);
-            res.send(err);
-        });
-});
 
 function comprobarKeywords(autoConstitucional, key, count) {
     const session3 = driver.session();
@@ -103,7 +55,7 @@ function comprobarKeywords(autoConstitucional, key, count) {
                     console.log("si existe");
                     const session2 = driver.session();
                     session2
-                        .run("MATCH (a:document {autoConst:$autoConstParam}),(b:keyword{word:$keyParam}) create(a)<-[r:key {peso:$countParam}]-(b) RETURN a.autoConst AS autoConstitucional, r.peso As peso, b.word AS word", {
+                        .run("MATCH (a:document {autoConst:$autoConstParam}),(b:keyword{word:$keyParam}) merge(a)<-[r:key {peso:$countParam}]-(b) RETURN a, r, b", {
                             autoConstParam: autoConstitucional,
                             keyParam: key,
                             countParam: count
@@ -121,7 +73,7 @@ function comprobarKeywords(autoConstitucional, key, count) {
                     console.log("No existe");
                     const session2 = driver.session();
                     session2
-                        .run("MATCH (a:document {autoConst:$autoConstParam}) create(b:keyword{word:$keyParam})-[r:key {peso:$countParam}]->(a) RETURN a.autoConst AS autoConstitucional, r.peso As peso, b.word AS word", {
+                        .run("MATCH (a:document {autoConst:$autoConstParam}) merge(b:keyword{word:$keyParam})-[r:key {peso:$countParam}]->(a) RETURN a, r, b", {
                             autoConstParam: autoConstitucional,
                             keyParam: key,
                             countParam: count
@@ -158,30 +110,35 @@ app.get('/api/v1/pdf', (req, res) => {
     var document;
     var autoConstitucional;
     var keys = [];
-    let dataBuffer = fs.readFileSync(rutaPenalDes1);
+    let dataBuffer = fs.readFileSync(rutaPenalDes2);
     pdf(dataBuffer).then(function (data) {
         var fullDocument = data.text;
         document = fullDocument;
         var documentLower = fullDocument.toLowerCase();
         var documentSplit = documentLower.split(' ');
-
+        
         //Desde aqui cuenta palabras repetidas y quita puntos comas y saltos de linea
         
         var diccionario = ['para','donde','como','desde','mismo','puede','cual','partir','debe','dentro','parte','fecha','sido','este','pues','haber','sobre','sería','esta','bien','todo','forma','estas','todos','todas','cuales','fechas','partes','estos','bajo','debió','debería','falta','días','tiene','tienes','misma','dicha']
         var documentSplit2 = documentLower.split(' ').filter(counter => counter.length > 3);
+        var texto = documentLower,
+            separadores = [' ','\n'],
+            documentSplitFINAL = texto.split (new RegExp (separadores.join('|'),'g')).filter(counter => counter.length > 3);
+
         for (let j = 0; j < diccionario.length; j++) {
-            for (let l = 0; l < documentSplit2.length; l++) {
-                if(diccionario[j] == documentSplit2[l]){
-                    documentSplit2.splice(l,1)
+            for (let l = 0; l < documentSplitFINAL.length; l++) {
+                if(diccionario[j] == documentSplitFINAL[l]){
+                    documentSplitFINAL.splice(l,1)
                 }
             }
         }
         var count = {};
-        documentSplit2.forEach(function (i) {
-            var clave = i.replace('\n', '').replace('.', '').replace(',', '').replace(':', '');
+        documentSplitFINAL.forEach(function (i) {
+            var clave = i.replace('.', '').replace(',', '').replace(':', '').replace(';', '').split(' ');
             count[clave] = (count[i] || 0) + 1;
-        });
+        }); 
         for (key in count) {
+            // console.log(count)
             if (count[key] >= 3) {
                 keys.push({
                     key: key,
@@ -189,10 +146,11 @@ app.get('/api/v1/pdf', (req, res) => {
                 });
             }
         }
-        autoConstitucional = documentSplit[4];
-        //Creando nodo de documento
+        // console.log(keys)
+        autoConstitucional = rutaPenalDes2;
+        //Creando nodo de documento 
         session
-            .run("Match (b:resolucion{name:'desestimiento'}), (c:materia{name:'penal'}) create (c)<-[:pertenece]-(a:document{autoConst:$autoConstParam, text:$documentParam})-[:termino]->(b) RETURN a.autoConst AS autoConstitucional, a.text AS texto", {
+            .run("Match (b:resolucion{name:'desestimiento'}), (c:materia{name:'penal'}) merge(c)<-[:pertenece]-(a:document{autoConst:$autoConstParam, text:$documentParam})-[:termino]->(b) RETURN a.autoConst AS autoConstitucional, a.text AS texto", {
                 documentParam: document,
                 autoConstParam: autoConstitucional
             })
