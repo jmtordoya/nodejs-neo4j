@@ -14,6 +14,12 @@ create
     (m:resolucion{name:'resolucion de rechazo'})
  return a,b,c,d,f,g,h,i,j,k,l,m
 
+ //BUSCAR TODOS LOS DOCUMENTOS QUE CONTENGAN LA PALABRA INSERTADA
+MATCH (a:document)<-[b:key]-(c:keyword) where c.word='recurso' return a
+
+//BUSCA TODOS LOS DOCUMENTOS QUE TENGAN EN SU TEXTO AL PALABRA BUSCADA Y QUE HAYAN ACABADO POR UNO DE LOS TERMINOS
+match (d:materia)<-[e:pertenece]-(a:document)<-[b:key]-(c:keyword)-[:key]->(z:document)-[f:termino]->(g:resolucion) where c.word='defecto' and g.name='desestimiento' return b,c,e,d,f,g,z order by b.peso desc
+
 //BUSCAR DOC QUE TIENEN ESA PALABRA CLAVE
 match (a:document)<-[r:key]-(b:keyword) 
 where b.word='nulidad' return a,r,b

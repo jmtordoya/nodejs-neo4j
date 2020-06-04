@@ -62,7 +62,7 @@
                     }
                 },
                 // initial_cypher: "match (n) return n"
-                initial_cypher: "MATCH (n)-[r:key]->(m) RETURN n,r,m limit 10"
+                initial_cypher: "match (d:materia)<-[e:pertenece]-(a:document)<-[b:key]-(c:keyword)-[:key]->(z:document)-[f:termino]->(g:resolucion) where c.word='defecto' and g.name='desestimiento' return b,c,e,d,f,g,z order by b.peso desc"
             };
 
             viz = new NeoVis.default(config);

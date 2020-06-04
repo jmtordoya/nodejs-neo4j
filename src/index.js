@@ -103,15 +103,18 @@ function comprobarKeywords(autoConstitucional, key, count) {
         })
 
 }
-app.get('/api/v1/delvolver',(req,res)=>{
+app.get('/api/v1/devolver/:palabraClave',(req,res)=>{
+    const $palabraClave = req.params.palabraClave
     const session2 = driver.session();
     var test=[];
     session2
-        .run("MATCH (a:document) RETURN a as documento")
+        .run(`MATCH (d:materia)<-[e:pertenece]-(a:document)<-[b:key]-(c:keyword) where c.word='${$palabraClave}' return a as documento, d as materia`)
+        // match (d:materia)<-[e:pertenece]-(a:document)<-[b:key]-(c:keyword)-[:key]->(z:document)-[f:termino]->(g:resolucion) where c.word='defecto' and g.name='desestimiento' return b,c,e,d,f,g,z order by b.peso desc
         .subscribe({
             onNext: record => {
                 // test = record.get('documento')
-                test.push(record.get('documento'))
+                test.push({document:record.get('documento'),materia:record.get('materia')})
+                console.log(test)
             },
             onCompleted: () => {
                 res.json(test)
