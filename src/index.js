@@ -108,6 +108,8 @@ app.get('/api/v1/devolver/:palabraClave',(req,res)=>{
     let palabras = $palabraClave.split(',')
     console.log(palabras)
     var test=[];
+    var count = {};
+    var enviarDatos=[];
     for (let i = 0; i < palabras.length; i++) {
         var indice = 0;
         const session2 = driver.session();
@@ -121,31 +123,29 @@ app.get('/api/v1/devolver/:palabraClave',(req,res)=>{
             return a as documento,b as materia,c as resolucion order by e.peso desc`)
             // 
             .subscribe({
-                onNext: record => {
-                    if(test.length != 0){
-                        for (let k = 0; k < test.length; k++) {
-                            console.log(test[k].document.properties.autoConst)
-                            if( test[k].document.properties.autoConst == record.get('documento').properties.autoConst){
-                                test.splice(k,1);
-                                console.log('es el mismo')
-                            }else{
-                                if(k >= test.length){
-                                    test.push({document:record.get('documento'),materia:record.get('materia'), resolucion:record.get('resolucion')})
-                                }
-                            }
-                            
-                        }
-                        // console.log(record.get('documento').properties.autoConst)
-                        
-                    }else{
-                        test.push({document:record.get('documento'),materia:record.get('materia'), resolucion:record.get('resolucion')})
-                    }
-                    
-                    // console.log(test)
+                onNext: record => {                    
+                        test.push({document:record.get('documento'),materia:record.get('materia'), resolucion:record.get('resolucion')})                              
                 },
+
                 onCompleted: () => {
                     if(i == palabras.length-1){
-                        res.json(test)
+                        test.forEach(function (i) {
+                            // console.log(i)
+                            count[i.document.properties] = (count[i.document.properties] || 0) + 1;                          
+                        }); 
+                        console.log(count)
+                        for (key in count) {
+                            // console.log(key.document)
+
+                                enviarDatos.push({
+                                    key: key,
+                                    count: count[key]
+                                });
+                            
+                        }
+                        // console.log(enviarDatos)
+                        // console.log(test)
+                        res.json(enviarDatos)
                     }
                     // console.log(test)
                     session2.close()
