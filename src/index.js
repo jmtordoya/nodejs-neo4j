@@ -104,28 +104,59 @@ function comprobarKeywords(autoConstitucional, key, count) {
 
 }
 app.get('/api/v1/devolver/:palabraClave',(req,res)=>{
-    const $palabraClave = req.params.palabraClave
-    const session2 = driver.session();
+    const $palabraClave = req.params.palabraClave   
+    let palabras = $palabraClave.split(',')
+    console.log(palabras)
     var test=[];
-    session2
-        .run(`MATCH (d:materia)<-[e:pertenece]-(a:document)<-[b:key]-(c:keyword) where c.word='${$palabraClave}' return a as documento, d as materia`)
-        // match (d:materia)<-[e:pertenece]-(a:document)<-[b:key]-(c:keyword)-[:key]->(z:document)-[f:termino]->(g:resolucion) where c.word='defecto' and g.name='desestimiento' return b,c,e,d,f,g,z order by b.peso desc
-        .subscribe({
-            onNext: record => {
-                // test = record.get('documento')
-                test.push({document:record.get('documento'),materia:record.get('materia')})
-                console.log(test)
-            },
-            onCompleted: () => {
-                res.json(test)
-                console.log(test)
-                session2.close()
-            },
-            onError: error => {
-                console.log(error)
-            }
-        })
-})
+    for (let i = 0; i < palabras.length; i++) {
+        var indice = 0;
+        const session2 = driver.session();
+        
+        session2
+            // .run(`MATCH (d:materia)<-[e:pertenece]-(a:document)<-[b:key]-(c:keyword) where c.word='${$palabraClave}' return a.autoConst as documento, d.name as materia`)
+            .run(`match (a:document)-[:pertenece]->(b:materia)
+            match (a:document)-[:termino]->(c:resolucion)
+            match (a:document)<-[e:key]-(d:keyword)
+            where d.word = '${palabras[i]}'
+            return a as documento,b as materia,c as resolucion order by e.peso desc`)
+            // 
+            .subscribe({
+                onNext: record => {
+                    if(test.length != 0){
+                        for (let k = 0; k < test.length; k++) {
+                            console.log(test[k].document.properties.autoConst)
+                            if( test[k].document.properties.autoConst == record.get('documento').properties.autoConst){
+                                test.splice(k,1);
+                                console.log('es el mismo')
+                            }else{
+                                if(k >= test.length){
+                                    test.push({document:record.get('documento'),materia:record.get('materia'), resolucion:record.get('resolucion')})
+                                }
+                            }
+                            
+                        }
+                        // console.log(record.get('documento').properties.autoConst)
+                        
+                    }else{
+                        test.push({document:record.get('documento'),materia:record.get('materia'), resolucion:record.get('resolucion')})
+                    }
+                    
+                    // console.log(test)
+                },
+                onCompleted: () => {
+                    if(i == palabras.length-1){
+                        res.json(test)
+                    }
+                    // console.log(test)
+                    session2.close()
+                },
+                onError: error => {
+                    console.log(error)
+                }
+            })
+            
+        }
+    })
 
 app.get('/api/v1/pdf', (req, res) => {
     var rutaCivilAuto1 = 'src/public/files/civil/autoInterlocutorio/jurisprudencia.pdf';

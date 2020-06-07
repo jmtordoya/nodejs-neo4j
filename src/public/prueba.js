@@ -7,16 +7,23 @@ async function cargarUltimasNoticias(texto){
         return data;
     }
     const $listaNoticias= await getDocumentos(`http://localhost:4000/api/v1/devolver/${texto}`);
-    debugger
+    // debugger
     console.log($listaNoticias)
-    
+    const $containerNoticias = document.getElementById('container')
+    $containerNoticias.innerHTML='';
     function NoticiasItemTemplate(noticia){
-        debugger
-        return `<div class="documento">
-        <h2>${noticia.document.properties.autoConst.substr(0,10)}</h2>  
-        <h3>${noticia.materia.properties.name}</h3>          
-        <div>${noticia.document.properties.text.substr(0,1000)}</div>
-        </div>`;
+        // debugger
+        return`
+                <div class="card">
+                <div class="card-header">${noticia.document.properties.autoConst.substr(0,10)}</div>
+                <div class="card-body">
+                    <h4><small>Materia: </small><i>"${noticia.materia.properties.name}"</i></h4>
+                    <h5><small>termino por:</small> <i>"${noticia.resolucion.properties.name}"</i></h5>
+                    <hr/>
+                    ${noticia.document.properties.text.substr(0,800)}
+                </div>
+                </div>
+            `
     }
     function createTemplate(HTMLString){
         const $html = document.implementation.createHTMLDocument();
@@ -34,12 +41,23 @@ async function cargarUltimasNoticias(texto){
           $container.append(noticiaElement);
         });    
     }
-    const $containerNoticias = document.getElementById('container')
     renderNoticiaList($listaNoticias, $containerNoticias)
     
 }
-$btnBuscar.addEventListener('click',()=>{
-    const $containerNoticias = document.getElementById('container')
-    $containerNoticias.innerHTML='';
-    cargarUltimasNoticias(document.getElementById('text').value)
+$btnBuscar.addEventListener('click',()=>{  
+    const $buscador =  document.getElementById('text');
+    let prueba = $buscador.value.split(' ').filter(counter => counter.length > 3);;
+    
+    var diccionario = ['para','donde','como','desde','mismo','puede','cual','partir','debe','dentro','parte','fecha','sido','este','pues','haber','sobre','sería','esta','bien','todo','forma','estas','todos','todas','cuales','fechas','partes','estos','bajo','debió','debería','falta','días','tiene','tienes','misma','dicha']
+    
+    for (let j = 0; j < diccionario.length; j++) {
+        for (let l = 0; l < prueba.length; l++) {
+            if(diccionario[j] == prueba[l]){
+                prueba.splice(l,1)
+            }
+        }
+    }
+    console.log(prueba)
+    cargarUltimasNoticias(prueba)
+
 })

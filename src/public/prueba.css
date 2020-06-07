@@ -6,3 +6,12 @@
     display: grid;
     grid-template-columns: repeat(3,1fr);
 }
+.container .card{
+    margin: 20px 5px;
+}
+.container .card .card-header{
+    background: #3B3D52;
+    font-weight: bold;
+    color: white;
+}
+
