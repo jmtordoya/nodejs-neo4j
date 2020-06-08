@@ -11,16 +11,16 @@ async function cargarUltimasNoticias(texto){
     console.log($listaNoticias)
     const $containerNoticias = document.getElementById('container')
     $containerNoticias.innerHTML='';
-    function NoticiasItemTemplate(noticia){
-        // debugger
+    function NoticiasItemTemplate(file){
+        debugger
         return`
                 <div class="card">
-                <div class="card-header">${noticia.document.properties.autoConst.substr(0,10)}</div>
+                <div class="card-header">${file.document.substr(0,10)}</div>
                 <div class="card-body">
-                    <h4><small>Materia: </small><i>"${noticia.materia.properties.name}"</i></h4>
-                    <h5><small>termino por:</small> <i>"${noticia.resolucion.properties.name}"</i></h5>
+                    <h4><small>Materia: </small><i>"${file.materia}"</i></h4>
+                    <h5><small>termino por:</small> <i>"${file.resolucion}"</i></h5>
                     <hr/>
-                    ${noticia.document.properties.text.substr(0,800)}
+                    ${file.text.substr(0,800)}
                 </div>
                 </div>
             `

@@ -108,7 +108,13 @@ app.get('/api/v1/devolver/:palabraClave',(req,res)=>{
     let palabras = $palabraClave.split(',')
     console.log(palabras)
     var test=[];
+    // var test={};
+    var tess2=[];
     var count = {};
+    // var prueba1=['pablo','pedro','pablo','franco','juan','joaquin','daniel','franco','pedro','ismael','daniel','franco','pedro','pedro','joaquin','pablo','pablo','pablo','pablo']
+    var prueba1=[1,2,3,4,2,3]
+    var prueba2=['juan','joaquin','daniel','pedro','ismael','daniel','pedro','joaquin']
+    
     var enviarDatos=[];
     for (let i = 0; i < palabras.length; i++) {
         var indice = 0;
@@ -120,43 +126,53 @@ app.get('/api/v1/devolver/:palabraClave',(req,res)=>{
             match (a:document)-[:termino]->(c:resolucion)
             match (a:document)<-[e:key]-(d:keyword)
             where d.word = '${palabras[i]}'
-            return a as documento,b as materia,c as resolucion order by e.peso desc`)
+            return a as documento,b as materia,c as resolucion,id(a) as id order by e.peso desc`)
             // 
             .subscribe({
                 onNext: record => {                    
-                        test.push({document:record.get('documento'),materia:record.get('materia'), resolucion:record.get('resolucion')})                              
+                        test.push({id:record.get('id').low,document:record.get('documento').properties.autoConst,text:record.get('documento').properties.text,materia:record.get('materia').properties.name, resolucion:record.get('resolucion').properties.name})    
+                        tess2.push(record.get('id').low)                          
                 },
-
+                //[1,2,3,4,2,3] b array aux
                 onCompleted: () => {
                     if(i == palabras.length-1){
-                        test.forEach(function (i) {
-                            // console.log(i)
-                            count[i.document.properties] = (count[i.document.properties] || 0) + 1;                          
-                        }); 
-                        console.log(count)
-                        for (key in count) {
-                            // console.log(key.document)
-
-                                enviarDatos.push({
-                                    key: key,
-                                    count: count[key]
-                                });
+                        var numero = test.length   
+                        console.log(test)               
+                            6
+                        //[1,2,3,4,3] p array test numero=5
                             
-                        }
-                        // console.log(enviarDatos)
-                        // console.log(test)
-                        res.json(enviarDatos)
+                        for (let l = 0; l < numero; l++) {
+                            let contador = 0;
+                            // console.log(test[l].id)
+                            for (let j = 0; j < numero; j++) {
+                                     //2           //2
+                                if(test[l].id == test[j].id){
+                                    contador++;//2
+
+                                    if(contador > 1){
+                                        test.splice(j,1)
+                                        // console.log(test)
+                                        numero=test.length;
+                                        j=0;
+                                        l=0;
+                                    }
+                                }else{
+                                   
+                                };
+                            }; 
+                            // if(var==numero) 
+                        };
+                        console.log(test)
+                        res.json(test)
                     }
-                    // console.log(test)
                     session2.close()
                 },
                 onError: error => {
                     console.log(error)
                 }
             })
-            
         }
-    })
+})
 
 app.get('/api/v1/pdf', (req, res) => {
     var rutaCivilAuto1 = 'src/public/files/civil/autoInterlocutorio/jurisprudencia.pdf';
