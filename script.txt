@@ -1,0 +1,58 @@
+//CONSULTAS QUE HEMOS UTILIZADO
+create 
+    (a:materia{name:'civil'}),
+    (b:materia{name:'penal'}),
+    (c:materia{name:'familiar'}),
+    (d:materia{name:'penal'}),
+    (f:materia{name:'comercial'}),
+    (g:materia{name:'laboral'}),
+    (h:resolucion{name:'sentencia'}),
+    (i:resolucion{name:'autos supremos'}),
+    (j:resolucion{name:'autos interlocutorios'}),
+    (k:resolucion{name:'desestimiento'}),
+    (l:resolucion{name:'acta de conciliacion'}),
+    (m:resolucion{name:'resolucion de rechazo'})
+ return a,b,c,d,f,g,h,i,j,k,l,m
+
+ //BUSCAR TODOS LOS DOCUMENTOS QUE CONTENGAN LA PALABRA INSERTADA
+MATCH (a:document)<-[b:key]-(c:keyword) where c.word='recurso' return a
+
+//BUSCA TODOS LOS DOCUMENTOS QUE TENGAN EN SU TEXTO AL PALABRA BUSCADA Y QUE HAYAN ACABADO POR UNO DE LOS TERMINOS
+match (d:materia)<-[e:pertenece]-(a:document)<-[b:key]-(c:keyword)-[:key]->(z:document)-[f:termino]->(g:resolucion) where c.word='defecto' and g.name='desestimiento' return b,c,e,d,f,g,z order by b.peso desc
+
+//BUSCAR DOC QUE TIENEN ESA PALABRA CLAVE
+match (a:document)<-[r:key]-(b:keyword) 
+where b.word='nulidad' return a,r,b
+
+//CREAR ESTUDIANTE, GRUPO Y RELACIONARLOS
+create 
+	(a:student{name:'jose miguel tordoya'}),
+	(b:group{name:'N2'})
+create (a)-[r:belongsTo]->(b)
+return a, r, b  
+
+//MOSTRAR TODOS LOS NODOS
+match (n) return n
+
+//ELIMINAR TODOS LOS NODOS
+MATCH (n) DETACH DELETE n
+
+//ELIMINAR NODO
+MATCH (n:student { name: 'Ismael Aliaga' })
+DELETE n
+
+//ELIMINAR RELACION
+MATCH (n:student { name: 'Ismael Aliaga' })-[r:belongsTo]->()
+DELETE r
+
+//ELIMINAR NODO CON TODAS SUS RELACIONES
+MATCH (n:student { name: 'Ismael Aliaga' })
+DETACH DELETE n
+
+//ELIMINAR TODOS LOS NODOS HUERFANOS, QUE NO TIENEN RELACION
+MATCH (n)
+WHERE NOT (n)--()
+DELETE n
+
+
+

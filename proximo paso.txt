@@ -1,0 +1,4 @@
+meter documentos en neo4j, detectanto negritas para que sean subtitulos.
+
+detectar palabras clave que se repiten mucho y guardarlas como keywords 
+para busquedas mas precisa
