@@ -103,6 +103,68 @@ function comprobarKeywords(autoConstitucional, key, count) {
         })
 
 }
+app.get('/api/v1/resolucion/:resolucion',(req,res)=>{
+    const $palabraClave = req.params.resolucion   
+
+    var test=[];
+
+    var indice = 0;
+    const session2 = driver.session();
+        
+    session2
+            // .run(`MATCH (d:materia)<-[e:pertenece]-(a:document)<-[b:key]-(c:keyword) where c.word='${$palabraClave}' return a.autoConst as documento, d.name as materia`)
+            .run(`match (a:document)-[:pertenece]->(b:materia)
+            match (a:document)-[:termino]->(c:resolucion)
+            where c.name = '${$palabraClave}'
+            return a as documento,b as materia,c as resolucion`)
+            // 
+            .subscribe({
+                onNext: record => {                    
+                        test.push({document:record.get('documento').properties.autoConst,text:record.get('documento').properties.text,materia:record.get('materia').properties.name, resolucion:record.get('resolucion').properties.name})                       
+                },
+                //[1,2,3,4,2,3] b array aux
+                onCompleted: () => {
+                    console.log(test)
+                    res.json(test)
+                    session2.close()
+                },
+                onError: error => {
+                    console.log(error)
+                }
+            })
+        
+})
+app.get('/api/v1/materia/:materia',(req,res)=>{
+    const $palabraClave = req.params.materia   
+
+    var test=[];
+
+    var indice = 0;
+    const session2 = driver.session();
+        
+    session2
+            // .run(`MATCH (d:materia)<-[e:pertenece]-(a:document)<-[b:key]-(c:keyword) where c.word='${$palabraClave}' return a.autoConst as documento, d.name as materia`)
+            .run(`match (a:document)-[:pertenece]->(b:materia)
+            match (a:document)-[:termino]->(c:resolucion)
+            where b.name = '${$palabraClave}'
+            return a as documento,b as materia,c as resolucion`)
+            // 
+            .subscribe({
+                onNext: record => {                    
+                        test.push({document:record.get('documento').properties.autoConst,text:record.get('documento').properties.text,materia:record.get('materia').properties.name, resolucion:record.get('resolucion').properties.name})                       
+                },
+                //[1,2,3,4,2,3] b array aux
+                onCompleted: () => {
+                    console.log(test)
+                    res.json(test)
+                    session2.close()
+                },
+                onError: error => {
+                    console.log(error)
+                }
+            })
+        
+})
 app.get('/api/v1/devolver/:palabraClave',(req,res)=>{
     const $palabraClave = req.params.palabraClave   
     let palabras = $palabraClave.split(',')

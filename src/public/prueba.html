@@ -10,11 +10,48 @@
 <body>
     <div class="container">
         <form action="" onsubmit="return false;">
-            <input type="text" id="text" placeholder="">
+            <div class="containerlabel">
+                <label for="text">por palabras:</label>
+            </div>
+            <div class="containerlabel2">  
+                <input type="text" id="text" placeholder="">
+                <input type="radio" name="a" id="radioText" checked=true>
+            </div>
+            <div class="containerlabel">
+                <label for="text">Materia:</label>
+            </div>
+            <div class="containerlabel2">
+                
+
+                <select name="" id="materia" disabled>
+                    <option value="civil">civil</option>
+                    <option value="penal">penal</option>
+                    <option value="familiar">familiar</option>
+                    <option value="comercial">comercial</option>
+                    <option value="laboral">laboral</option>
+                </select>
+                <input type="radio" name="a" id="radioMateria">
+            </div>
+            <div class="containerlabel">
+                <label for="text">Resolucion:</label>
+            </div>
+            <div class="containerlabel2">
+                <select name="" id="resolucion" disabled>
+                    <option value="sentencia">sentencia</option>
+                    <option value="autos supremos">autos supremos</option>
+                    <option value="autos interlocutorios">autos interlocutorios</option>
+                    <option value="desestimiento">desestimiento</option>
+                    <option value="acta de conciliacion">acta de conciliacion</option>
+                    <option value="resolucion de rechazo">resolucion de rechazo</option>
+                </select>
+                <input type="radio" name="a" id="radioResolucion">
+
+                
+            </div>
             <input type="submit" id="btnBuscar" value="Buscar">
         </form>
     </div>
-    <div id="container" class="container">
+    <div id="container" class="container docs">
         
         
     </div>
