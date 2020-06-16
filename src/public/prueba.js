@@ -6,6 +6,11 @@ const $text = document.getElementById('text');
 const $materia = document.getElementById('materia');
 const $resolucion = document.getElementById('resolucion');
 
+document.getElementById('overlay').addEventListener('click',()=>{
+    document.getElementById('overlay').classList.remove('active');
+    document.getElementById('modaltext').style.animation="animationOut .8s forwards";
+});
+
 async function cargarUltimasNoticias(texto, url) {
     async function getDocumentos(url) {
         const response = await fetch(url);
@@ -38,7 +43,7 @@ async function cargarUltimasNoticias(texto, url) {
         });
         return `
                 <div class="card">
-                    <div class="card-header" type="button" data-toggle="modal" data-target="#exampleModalLong">${file.document.substr(0, 10)}</div>
+                    <div class="card-header">${file.document.substr(0, 10)}</div>
                     <div class="card-body">
                         <h4><small>Materia: </small><i>"${file.materia}"</i></h4>
                         <h5><small>termino por:</small> <i>"${file.resolucion}"</i></h5>
@@ -57,12 +62,27 @@ async function cargarUltimasNoticias(texto, url) {
         return $html.body.children[0];
     }
 
+    function addEventClick($element,$noticia) {
+        $element.addEventListener('click', () => {
+          // alert('click')
+          showModal($noticia)
+        })
+    }
+
+    function showModal($noticia){
+        
+        document.getElementById('overlay').classList.add('active');
+        document.getElementById('modaltext').style.animation="animationIn .8s forwards";
+        document.getElementById('parrafo').textContent= $noticia.text;
+    }
+
     function renderNoticiaList(listnoticia, $container) {
         listnoticia.forEach(noticia => {
-
+            
             const HTMLString = NoticiasItemTemplate(noticia);
             const noticiaElement = createTemplate(HTMLString);
-            //   addEventClick(noticiaElement,noticia);
+            //debugger
+            addEventClick(noticiaElement.children[0],noticia);
 
             $container.append(noticiaElement);
         });
