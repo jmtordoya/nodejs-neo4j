@@ -74,6 +74,7 @@ async function cargarUltimasNoticias(texto, url) {
         document.getElementById('overlay').classList.add('active');
         document.getElementById('modaltext').style.animation="animationIn .8s forwards";
         document.getElementById('parrafo').textContent= $noticia.text;
+        console.log($noticia.text);
     }
 
     function renderNoticiaList(listnoticia, $container) {

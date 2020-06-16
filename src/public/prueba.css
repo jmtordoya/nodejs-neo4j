@@ -88,8 +88,10 @@ form .containerlabel label{
 }
 
 .modalText{
+    padding-left: 15px;
+    padding-bottom: 30px;
     position: fixed;
-    width: 65vw;
+    width: 52vw;
     height: 80vh;
     z-index: 10;
     background: white;
@@ -98,7 +100,9 @@ form .containerlabel label{
     border-radius: 10px;
     transform: translateY(-3000px);
     /*animation: animationIn .8s forwards; */
-    overflow: scroll;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    white-space: pre-wrap;
 }
 
 .container .card .card-header:hover{
