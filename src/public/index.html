@@ -34,9 +34,9 @@
         function draw() {
             var config = {
                 container_id: "viz",
-                server_url: "bolt://localhost:7687",
-                server_user: "dan",
-                server_password: "123",
+                server_url: "bolt://megashi.ddns.net:7687",
+                server_user: "magtsoft",
+                server_password: "1234",
                 labels: {
                     "document": {
                         "caption": "autoConst",
@@ -62,7 +62,8 @@
                     }
                 },
                 // initial_cypher: "match (n) return n"
-                initial_cypher: "match (d:materia)<-[e:pertenece]-(a:document)<-[b:key]-(c:keyword)-[:key]->(z:document)-[f:termino]->(g:resolucion) where c.word='defecto' and g.name='desestimiento' return b,c,e,d,f,g,z order by b.peso desc"
+                // initial_cypher: "match (d:materia)<-[e:pertenece]-(a:document)<-[b:key]-(c:keyword)-[:key]->(z:document)-[f:termino]->(g:resolucion) where c.word='defecto' and g.name='desestimiento' return b,c,e,d,f,g,z order by b.peso desc"
+                initial_cypher: "match (a:document)-[z:pertenece]->(b:materia) match (a:document)-[x:termino]->(c:resolucion) match (a:document)<-[e:key]-(d:keyword) where d.word = 'penal' return d as key, a as documento,b as materia,c as resolucion,id(a) as id,z,x,e order by e.peso desc"
             };
 
             viz = new NeoVis.default(config);
