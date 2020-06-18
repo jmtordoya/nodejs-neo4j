@@ -3,7 +3,7 @@ const $radioText = document.getElementById('radioText');
 const $radioMateria = document.getElementById('radioMateria');
 const $radioResolucion = document.getElementById('radioResolucion');
 const $text = document.getElementById('text');
-debugger
+// debugger
 const $materia = document.getElementById('materia');
 const $resolucion = document.getElementById('resolucion');
 
@@ -19,7 +19,6 @@ async function cargarUltimasNoticias(texto, url){
     const $containerNoticias = document.getElementById('container')
     $containerNoticias.innerHTML='';
     function NoticiasItemTemplate(file){
-        debugger
         return`
                 <div class="card">
                 <div class="card-header">${file.document.substr(0,10)}</div>
@@ -43,6 +42,7 @@ async function cargarUltimasNoticias(texto, url){
             
             const HTMLString = NoticiasItemTemplate(noticia);
           const noticiaElement = createTemplate(HTMLString);
+          
         //   addEventClick(noticiaElement,noticia);
         
           $container.append(noticiaElement);

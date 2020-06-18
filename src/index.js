@@ -7,7 +7,7 @@ const fs = require('fs');
 const pdf = require('pdf-parse');
 
 //Conexion to database
-const driver = neo4j.driver('bolt://localhost', neo4j.auth.basic('dan', '123'));
+const driver = neo4j.driver('bolt://megashi.ddns.net', neo4j.auth.basic('magtsoft', '1234'));
 const session = driver.session();
 
 //Initializations
