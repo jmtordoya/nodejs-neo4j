@@ -3,7 +3,6 @@ create
     (a:materia{name:'civil'}),
     (b:materia{name:'penal'}),
     (c:materia{name:'familiar'}),
-    (d:materia{name:'penal'}),
     (f:materia{name:'comercial'}),
     (g:materia{name:'laboral'}),
     (h:resolucion{name:'sentencia'}),
@@ -12,7 +11,7 @@ create
     (k:resolucion{name:'desestimiento'}),
     (l:resolucion{name:'acta de conciliacion'}),
     (m:resolucion{name:'resolucion de rechazo'})
- return a,b,c,d,f,g,h,i,j,k,l,m
+ return a,b,c,f,g,h,i,j,k,l,m
 
  //BUSCAR TODOS LOS DOCUMENTOS QUE CONTENGAN LA PALABRA INSERTADA
 MATCH (a:document)<-[b:key]-(c:keyword) where c.word='recurso' return a

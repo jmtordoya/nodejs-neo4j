@@ -188,11 +188,13 @@ app.get('/api/v1/devolver/:palabraClave',(req,res)=>{
             match (a:document)-[:termino]->(c:resolucion)
             match (a:document)<-[e:key]-(d:keyword)
             where d.word = '${palabras[i]}'
-            return a as documento,b as materia,c as resolucion,id(a) as id order by e.peso desc`)
+            return d as key, a as documento,b as materia,c as resolucion,id(a) as id order by e.peso desc`)
             // 
             .subscribe({
                 onNext: record => {                    
-                        test.push({id:record.get('id').low,document:record.get('documento').properties.autoConst,text:record.get('documento').properties.text,materia:record.get('materia').properties.name, resolucion:record.get('resolucion').properties.name})    
+                        test.push({id:record.get('id').low,document:record.get('documento').properties.autoConst,text:record.get('documento').properties.text,materia:record.get('materia').properties.name, resolucion:record.get('resolucion').properties.name,
+                        palabras:record.get('key').properties.word
+                        })    
                         tess2.push(record.get('id').low)                          
                 },
                 //[1,2,3,4,2,3] b array aux
@@ -237,18 +239,69 @@ app.get('/api/v1/devolver/:palabraClave',(req,res)=>{
 })
 
 app.get('/api/v1/pdf', (req, res) => {
-    var rutaCivilAuto1 = 'src/public/files/civil/autoInterlocutorio/jurisprudencia.pdf';
-    var rutaCivilAuto2 = 'src/public/files/civil/autoInterlocutorio/jurisprudencia2.pdf';
-    var rutaCivilSen1 = 'src/public/files/civil/sentencia/jurisprudencia.pdf';
-    var rutaCivilSen2 = 'src/public/files/civil/sentencia/jurisprudencia2.pdf';
-    var rutaPenalActa1 = 'src/public/files/penal/actaConciliacion/jurisprudencia.pdf';
-    var rutaPenalActa2 = 'src/public/files/penal/actaConciliacion/jurisprudencia2.pdf';
-    var rutaPenalDes1 = 'src/public/files/penal/desestimiento/jurisprudencia.pdf';
-    var rutaPenalDes2 = 'src/public/files/penal/desestimiento/jurisprudencia2.pdf';
+    //CIVIL
+    var rutaCivil1 = 'src/public/files/civil/actaConciliacion/1.pdf';
+    var rutaCivil2 = 'src/public/files/civil/actaConciliacion/2.pdf';
+    var rutaCivil3 = 'src/public/files/civil/autoInterlocutorio/3.pdf';
+    var rutaCivil4 = 'src/public/files/civil/autoInterlocutorio/4.pdf';
+    var rutaCivil5 = 'src/public/files/civil/autosupremos/5.pdf';
+    var rutaCivil6 = 'src/public/files/civil/autosupremos/6.pdf';
+    var rutaCivil7 = 'src/public/files/civil/desestimiento/7.pdf';
+    var rutaCivil8 = 'src/public/files/civil/desestimiento/8.pdf';
+    var rutaCivil9 = 'src/public/files/civil/resolucionRechazo/9.pdf';
+    var rutaCivil10 = 'src/public/files/civil/resolucionRechazo/10.pdf';
+    var rutaCivil11= 'src/public/files/civil/sentencia/11.pdf';
+    //COMERCIAL
+    var rutaComercial1 = 'src/public/files/comercial/actaConciliacion/1.pdf';
+    var rutaComercial2 = 'src/public/files/comercial/actaConciliacion/2.pdf';
+    var rutaComercial3 = 'src/public/files/comercial/autoInterlocutorio/3.pdf';
+    var rutaComercial4 = 'src/public/files/comercial/autoInterlocutorio/4.pdf';
+    var rutaComercial5 = 'src/public/files/comercial/autosupremos/5.pdf';
+    var rutaComercial6 = 'src/public/files/comercial/autosupremos/6.pdf';
+    var rutaComercial7 = 'src/public/files/comercial/desestimiento/7.pdf';
+    var rutaComercial8 = 'src/public/files/comercial/desestimiento/8.pdf';
+    var rutaComercial9 = 'src/public/files/comercial/resolucionRechazo/9.pdf';
+    var rutaComercial10 = 'src/public/files/comercial/sentencia/10.pdf';
+    //FAMILIAR
+    var rutaFamiliar1 = 'src/public/files/familiar/actaConciliacion/1.pdf';
+    var rutaFamiliar2 = 'src/public/files/familiar/actaConciliacion/2.pdf';
+    var rutaFamiliar3 = 'src/public/files/familiar/autoInterlocutorio/3.pdf';
+    var rutaFamiliar4 = 'src/public/files/familiar/autoInterlocutorio/4.pdf';
+    var rutaFamiliar5 = 'src/public/files/familiar/autosupremos/5.pdf';
+    var rutaFamiliar6 = 'src/public/files/familiar/autosupremos/6.pdf';
+    var rutaFamiliar7 = 'src/public/files/familiar/desestimiento/7.pdf';
+    var rutaFamiliar8 = 'src/public/files/familiar/desestimiento/8.pdf';
+    var rutaFamiliar9 = 'src/public/files/familiar/resolucionRechazo/9.pdf';
+    var rutaFamiliar10 = 'src/public/files/familiar/sentencia/10.pdf';
+    //LABORAL
+    var rutaLaboral1 = 'src/public/files/laboral/actaConciliacion/1.pdf';
+    var rutaLaboral2 = 'src/public/files/laboral/actaConciliacion/2.pdf';
+    var rutaLaboral3 = 'src/public/files/laboral/autoInterlocutorio/3.pdf';
+    var rutaLaboral4 = 'src/public/files/laboral/autoInterlocutorio/4.pdf';
+    var rutaLaboral5 = 'src/public/files/laboral/autosupremos/5.pdf';
+    var rutaLaboral6 = 'src/public/files/laboral/autosupremos/6.pdf';
+    var rutaLaboral7 = 'src/public/files/laboral/desestimiento/7.pdf';
+    var rutaLaboral8 = 'src/public/files/laboral/desestimiento/8.pdf';
+    var rutaLaboral9 = 'src/public/files/laboral/resolucionRechazo/9.pdf';
+    var rutaLaboral10 = 'src/public/files/laboral/sentencia/10.pdf';
+    //PENAL
+    var rutaPenal1 = 'src/public/files/penal/actaConciliacion/1.pdf';
+    var rutaPenal2 = 'src/public/files/penal/actaConciliacion/2.pdf';
+    var rutaPenal3 = 'src/public/files/penal/autoInterlocutorio/3.pdf';
+    var rutaPenal4 = 'src/public/files/penal/autoInterlocutorio/4.pdf';
+    var rutaPenal5 = 'src/public/files/penal/autosupremos/5.pdf';
+    var rutaPenal6 = 'src/public/files/penal/autosupremos/6.pdf';
+    var rutaPenal7 = 'src/public/files/penal/desestimiento/7.pdf';
+    var rutaPenal8 = 'src/public/files/penal/desestimiento/8.pdf';
+    var rutaPenal9 = 'src/public/files/penal/resolucionRechazo/9.pdf';
+    var rutaPenal10 = 'src/public/files/penal/resolucionRechazo/10.pdf';
+    var rutaPenal11 = 'src/public/files/penal/sentencia/11.pdf';
+    var rutaPenal12 = 'src/public/files/penal/sentencia/12.pdf';
+
     var document;
     var autoConstitucional;
     var keys = [];
-    let dataBuffer = fs.readFileSync(rutaPenalDes2);
+    let dataBuffer = fs.readFileSync(rutaPenal12);
     pdf(dataBuffer).then(function (data) {
         var fullDocument = data.text;
         document = fullDocument;
@@ -286,10 +339,10 @@ app.get('/api/v1/pdf', (req, res) => {
             }
         }
         // console.log(keys)
-        autoConstitucional = rutaPenalDes2;
+        autoConstitucional = rutaPenal12;
         //Creando nodo de documento 
         session
-            .run("Match (b:resolucion{name:'desestimiento'}), (c:materia{name:'penal'}) merge(c)<-[:pertenece]-(a:document{autoConst:$autoConstParam, text:$documentParam})-[:termino]->(b) RETURN a.autoConst AS autoConstitucional, a.text AS texto", {
+            .run("Match (b:resolucion{name:'sentencia'}), (c:materia{name:'penal'}) merge(c)<-[:pertenece]-(a:document{autoConst:$autoConstParam, text:$documentParam})-[:termino]->(b) RETURN a.autoConst AS autoConstitucional, a.text AS texto", {
                 documentParam: document,
                 autoConstParam: autoConstitucional
             })
